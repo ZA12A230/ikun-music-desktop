@@ -16,6 +16,8 @@ dd
 dd
   h3#basic_theme {{ $t('setting__basic_theme') }}
   div
+    .gap-top
+      base-checkbox(id="setting_dynamic_background" :model-value="appSetting['theme.dynamicBackground']" :label="$t('setting__basic_dynamic_background')" @update:model-value="updateSetting({'theme.dynamicBackground': $event})")
     ul(:class="$style.theme")
       li(v-for="theme in themeList" :key="theme.id" :aria-label="theme.name" :style="theme.styles" :class="[$style.themeItem, {[$style.active]: themeId == theme.id}]" @click="toggleTheme(theme)" @contextmenu="handleEditTheme(theme)")
         div(:class="$style.bg")

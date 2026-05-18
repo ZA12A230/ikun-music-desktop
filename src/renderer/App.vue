@@ -1,5 +1,6 @@
 <template>
   <div id="container" class="view-container">
+    <div v-if="dynamicBackground" id="dynamic-bg" :class="$style.dynamicBg" :style="dynamicBgStyle"></div>
     <layout-aside id="left" />
     <div id="right">
       <layout-toolbar id="toolbar" />
@@ -17,12 +18,25 @@
 </template>
 
 <script setup>
-import { onMounted } from '@common/utils/vueTools'
+import { onMounted, computed } from '@common/utils/vueTools'
 // import BubbleCursor from '@common/utils/effects/cursor-effects/bubbleCursor'
 // import '@common/utils/effects/snow.min'
 import useApp from '@renderer/core/useApp'
+import { musicInfo } from '@renderer/store/player/state'
+import { appSetting } from '@renderer/store/setting'
 
 useApp()
+
+const dynamicBackground = computed(() => appSetting['theme.dynamicBackground'])
+
+const dynamicBgStyle = computed(() => {
+  if (musicInfo.pic && appSetting['theme.dynamicBackground']) {
+    return {
+      backgroundImage: `url(${musicInfo.pic})`,
+    }
+  }
+  return {}
+})
 
 onMounted(() => {
   document.getElementById('root').style.display = 'block'
@@ -38,6 +52,22 @@ onMounted(() => {
 //   window.lxData.bubbleCursor?.destroy()
 // })
 </script>
+
+<style lang="less" module>
+.dynamicBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+  filter: blur(50px) saturate(1.5);
+  transform: scale(1.2);
+  z-index: -2;
+  transition: background-image 0.5s ease;
+}
+</style>
 
 <style lang="less">
 @import './assets/styles/index.less';
@@ -124,19 +154,22 @@ body {
   position: relative;
   display: flex;
   height: 100%;
-  background-color: var(--color-app-background);
+  background-color: transparent;
 }
 
 #left {
   flex: none;
   width: @width-app-left;
+  backdrop-filter: blur(20px) saturate(1.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 #right {
   flex: auto;
   display: flex;
   flex-flow: column nowrap;
   transition: background-color @transition-normal;
-  background-color: var(--color-main-background);
+  backdrop-filter: blur(20px) saturate(1.2);
+  background-color: rgba(255, 255, 255, 0.15);
 
   border-top-left-radius: @radius-border;
   border-bottom-left-radius: @radius-border;

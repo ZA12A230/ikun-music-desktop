@@ -18,10 +18,14 @@ div(:class="$style.footerLeftControlBtns")
   common-playback-rate-btn
   common-volume-btn
   common-toggle-play-mode-btn
+  button(:class="[$style.footerLeftControlBtn, { [$style.active]: !!timeLabel }]" :aria-label="$t('play_timeout')" @click="isShowPlayTimeoutModal = true")
+    svg(version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="95%" viewBox="0 0 24 24" space="preserve")
+      use(xlink:href="#icon-timer")
   button(:class="$style.footerLeftControlBtn" :aria-label="$t('player__add_music_to')" @click="isShowAddMusicTo = true")
     svg(version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" space="preserve")
       use(xlink:href="#icon-add-2")
   common-list-add-modal(v-model:show="isShowAddMusicTo" :music-info="playMusicInfo.musicInfo")
+  play-timeout-modal(v-model="isShowPlayTimeoutModal")
 
 </template>
 
@@ -38,16 +42,23 @@ import { setShowPlayLrcSelectContentLrc, setShowPlayComment } from '@renderer/st
 
 import useNextTogglePlay from '@renderer/utils/compositions/useNextTogglePlay'
 import useToggleDesktopLyric from '@renderer/utils/compositions/useToggleDesktopLyric'
+import { useTimeout } from '@renderer/core/player/timeoutStop'
 import { dialog } from '@renderer/plugins/Dialog'
 import { setMediaDeviceId } from '@renderer/plugins/player'
 import { appSetting, saveMediaDeviceId, setEnableAudioVisualization } from '@renderer/store/setting'
+import PlayTimeoutModal from '@renderer/views/Setting/components/PlayTimeoutModal.vue'
 
 export default {
+  components: {
+    PlayTimeoutModal,
+  },
   setup() {
     const t = useI18n()
     // const setting = useRefGetter('setting')
     // const setAudioVisualization = useCommit('setAudioVisualization')
     // const saveMediaDeviceId = useCommit('setMediaDeviceId')
+
+    const { timeLabel } = useTimeout()
 
     const toggleVisibleLrc = () => {
       setShowPlayLrcSelectContentLrc(!isShowLrcSelectContent.value)
@@ -61,6 +72,7 @@ export default {
       useToggleDesktopLyric()
 
     const isShowAddMusicTo = ref(false)
+    const isShowPlayTimeoutModal = ref(false)
 
     const toggleAudioVisualization = async () => {
       const newSetting = !appSetting['player.audioVisualization']
@@ -90,6 +102,8 @@ export default {
       toggleLockDesktopLyric,
       toggleAudioVisualization,
       isShowAddMusicTo,
+      isShowPlayTimeoutModal,
+      timeLabel,
       playMusicInfo,
     }
   },

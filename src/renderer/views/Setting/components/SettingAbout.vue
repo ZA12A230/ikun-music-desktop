@@ -5,9 +5,6 @@ dd
     | 本软件完全免费, 基于此项目修改：
     span.hover.underline(:aria-label="$t('setting__click_open')" @click="openUrl('https://github.com/ikunshare/ikun-music-desktop#readme')") https://github.com/ikunshare/ikun-music-desktop
   .p.small
-    | 最新版下载地址：
-    span.hover.underline(:aria-label="$t('setting__click_open')" @click="openUrl('https://qm.qq.com/q/4icC92o3tu')") QQ群文件
-  .p.small
     | 软件的常见问题可转至：
     span.hover.underline(:aria-label="$t('setting__click_open')" @click="openUrl('https://ikunshare.github.io/lx-music-doc/desktop/faq')") 桌面版常见问题
   .p.small
@@ -15,18 +12,8 @@ dd
     | ，但我们整理了一些常见的使用问题。
     strong 仔细、仔细、仔细
     | 地阅读常见问题后，
-  .p.small
-    | 仍有问题可到&nbsp;QQ群&nbsp;
-    span.hover.underline(:aria-label="$t('setting__click_open')" @click="openUrl('https://qm.qq.com/q/4icC92o3tu')") @群主提交&nbsp;Issue
-    | 。
   br
   .p.small 由于软件开发的初衷仅是为了对新技术的学习与研究，因此软件直至停止维护都将会一直保持纯净。
-  .p.small
-    | 目前本修改版本项目的原始发布地址
-    strong 只有&nbsp;QQ
-    | ，其他渠道均为第三方转载发布，可信度请自行鉴别。
-  .p.small
-    strong 本项目没有微信公众号之类的所谓「官方账号」，谨防被骗！
 
   .p.small
     | 你已签署本软件的
@@ -38,7 +25,7 @@ dd
 
   .p.small
     | By:&nbsp;
-    strong 落雪无痕 && ikun0014
+    strong G佑
 </template>
 
 <script>

@@ -153,6 +153,15 @@ const defaultSetting: LX.AppSetting = {
   'theme.id': 'green',
   'theme.lightId': 'green',
   'theme.darkId': 'black',
+  'theme.dynamicBackground': true,
+
+  'cloudBackup.enable': false,
+  'cloudBackup.provider': '',
+  'cloudBackup.backupPath': '/lx_music_backup',
+  'cloudBackup.autoBackup': false,
+  'cloudBackup.autoBackupInterval': 24,
+  'cloudBackup.syncSetting': true,
+  'cloudBackup.syncList': true,
 
   'odc.isAutoClearSearchInput': false,
   'odc.isAutoClearSearchList': false,

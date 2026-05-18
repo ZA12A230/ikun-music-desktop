@@ -593,6 +593,22 @@ declare global {
       'theme.darkId': string
 
       /**
+       * 是否启用动态背景
+       */
+      'theme.dynamicBackground': boolean
+
+      /**
+       * 网盘备份配置
+       */
+      'cloudBackup.enable': boolean
+      'cloudBackup.provider': string
+      'cloudBackup.backupPath': string
+      'cloudBackup.autoBackup': boolean
+      'cloudBackup.autoBackupInterval': number
+      'cloudBackup.syncSetting': boolean
+      'cloudBackup.syncList': boolean
+
+      /**
        * 是否显示热门搜索
        */
       'search.isShowHotSearch': boolean
