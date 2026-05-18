@@ -15,18 +15,10 @@ on:
 
 env:
   NODE_VERSION: '22.x'
-  ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            architecture: x64
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -36,7 +28,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
@@ -47,106 +38,47 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Pack portable version
-        run: npm run pack:win:portable:x64
+      - name: Pack to directory
+        run: npm run pack:dir
 
-      - name: Find output files
-        id: find-files
+      - name: Check directory
         shell: powershell
         run: |
-          $files = Get-ChildItem -Path "output" -Recurse -Filter "*portable*.exe" | Select-Object -First 1
-          if ($files) {
-            $exePath = $files.FullName
-            $exeName = $files.Name
-            $dirPath = Split-Path -Parent $exePath
-            echo "EXE_PATH=$exePath" >> $env:GITHUB_OUTPUT
-            echo "EXE_NAME=$exeName" >> $env:GITHUB_OUTPUT
-            echo "DIR_PATH=$dirPath" >> $env:GITHUB_OUTPUT
-            echo "Found EXE: $exeName at $exePath"
-          } else {
-            echo "No EXE found, checking win-unpacked..."
-            if (Test-Path "dist\win-unpacked") {
-              echo "DIR_PATH=dist\win-unpacked" >> $env:GITHUB_OUTPUT
-              echo "Using directory: dist\win-unpacked"
-            }
-          }
+          echo "Checking directory structure..."
+          Get-ChildItem -Path "dist" -Recurse | Select-Object -First 30 | Format-Table -AutoSize
 
-      - name: Create portable folder (from win-unpacked)
-        if: ${{ !steps.find-files.outputs.EXE_PATH }}
+      - name: Find win-unpacked
         shell: powershell
         run: |
           if (Test-Path "dist\win-unpacked") {
-            New-Item -ItemType Directory -Force -Path "portable-output"
-            Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "portable-output\"
-            "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "portable-output\portable.txt" -Encoding UTF8
-            echo "Created portable-output directory"
+            echo "win-unpacked found!"
+            Get-ChildItem -Path "dist\win-unpacked" | Format-Table -AutoSize
           }
 
-      - name: Upload portable folder artifact
-        if: ${{ !steps.find-files.outputs.EXE_PATH }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: LX-Music-Portable-Folder-${{ matrix.architecture }}
-          path: portable-output/
-          retention-days: 90
-
-      - name: Upload portable EXE artifact
-        if: ${{ steps.find-files.outputs.EXE_PATH }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: LX-Music-Portable-${{ matrix.architecture }}
-          path: ${{ steps.find-files.outputs.DIR_PATH }}/
-          retention-days: 90
-
-      - name: Upload dist folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-folder-${{ matrix.architecture }}
-          path: dist/
-          retention-days: 30
-
-      - name: Upload output folder
-        if: ${{ steps.find-files.outputs.DIR_PATH }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-folder-${{ matrix.architecture }}
-          path: output/
-          retention-days: 30
-
-  create-release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
-
-    steps:
-      - name: Download portable folder artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: LX-Music-Portable-Folder-x64
-          path: portable-folder
-        continue-on-error: true
-
-      - name: Download portable EXE artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: LX-Music-Portable-x64
-          path: portable-exe
-        continue-on-error: true
-
-      - name: Create zip from folder
-        if: ${{ always() }}
+      - name: Create portable version
+        shell: powershell
         run: |
-          if [ -d "portable-folder" ]; then
-            cd portable-folder
-            zip -r ../LX-Music-Portable-win-x64.zip .
-            cd ..
-          elif [ -d "portable-exe" ]; then
-            cd portable-exe
-            zip -r ../LX-Music-Portable-win-x64.zip .
-            cd ..
-          fi
+          New-Item -ItemType Directory -Force -Path "portable"
+          Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "portable\"
+          echo "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "portable\portable.txt" -Encoding UTF8
+          echo "Portable version created successfully!"
+          Get-ChildItem -Path "portable" | Format-Table -AutoSize
 
-      - name: Create Release
+      - name: Upload portable version
+        uses: actions/upload-artifact@v4
+        with:
+          name: LX-Music-Portable-win-x64
+          path: portable/
+          retention-days: 90
+
+      - name: Create zip for release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        run: |
+          Compress-Archive -Path "portable\*" -DestinationPath "LX-Music-Portable-win-x64.zip" -Force
+          echo "Created zip file successfully!"
+
+      - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
