@@ -263,6 +263,11 @@ export const listenerAppEvent = (startApp: () => void) => {
     if (keys.includes('player.isMute')) {
       global.lx.event_app.player_status({ mute: setting['player.isMute'] })
     }
+    if (keys.includes('common.autoStart')) {
+      app.setLoginItemSettings({
+        openAtLogin: !!setting['common.autoStart'],
+      })
+    }
   })
   global.lx.event_app.on('app_inited', () => {
     setProxy()
@@ -334,6 +339,9 @@ export const initAppSetting = async () => {
         log.error(err)
       })
     initTheme()
+    app.setLoginItemSettings({
+      openAtLogin: !!global.lx.appSetting['common.autoStart'],
+    })
     if (envParams.cmdParams.dt == null)
       envParams.cmdParams.dt = !global.lx.appSetting['common.transparentWindow']
   }

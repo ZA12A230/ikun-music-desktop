@@ -144,6 +144,11 @@ const defaultSetting: LX.AppSetting = {
   'sync.server.port': '23332',
   'sync.server.maxSsnapshotNum': 5,
   'sync.client.host': '',
+  'sync.thirdParty.enable': false,
+  'sync.thirdParty.serverUrl': 'https://lxsync.5had0w.com/api/',
+  'sync.thirdParty.connectCode': '',
+
+  'common.autoStart': false,
 
   'openAPI.enable': false,
   'openAPI.port': '23330',

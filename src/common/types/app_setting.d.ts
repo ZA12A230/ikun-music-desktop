@@ -679,6 +679,26 @@ declare global {
       'sync.client.host': string
 
       /**
+       * 是否启用第三方同步服务器自动连接
+       */
+      'sync.thirdParty.enable': boolean
+
+      /**
+       * 第三方同步服务器地址
+       */
+      'sync.thirdParty.serverUrl': string
+
+      /**
+       * 第三方同步服务器连接码
+       */
+      'sync.thirdParty.connectCode': string
+
+      /**
+       * 是否启用开机自启动
+       */
+      'common.autoStart': boolean
+
+      /**
        * 是否启用开放API服务
        */
       'openAPI.enable': boolean
