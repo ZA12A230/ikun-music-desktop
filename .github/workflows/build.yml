@@ -48,14 +48,20 @@ jobs:
           Get-ChildItem -Path "dist" -Recurse | Select-Object -First 30 | Format-Table -AutoSize
 
       - name: Find win-unpacked
+        id: find-unpacked
         shell: powershell
         run: |
           if (Test-Path "dist\win-unpacked") {
-            echo "win-unpacked found!"
+            Write-Host "win-unpacked found!"
+            "HAS_WIN_UNPACKED=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding UTF8
             Get-ChildItem -Path "dist\win-unpacked" | Format-Table -AutoSize
+          } else {
+            Write-Host "win-unpacked NOT found!"
+            "HAS_WIN_UNPACKED=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding UTF8
           }
 
       - name: Create portable version
+        if: steps.find-unpacked.outputs.HAS_WIN_UNPACKED == 'true'
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path "portable"
@@ -65,6 +71,7 @@ jobs:
           Get-ChildItem -Path "portable" | Format-Table -AutoSize
 
       - name: Upload portable version
+        if: steps.find-unpacked.outputs.HAS_WIN_UNPACKED == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: LX-Music-Portable-win-x64
@@ -72,14 +79,14 @@ jobs:
           retention-days: 90
 
       - name: Create zip for release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') && steps.find-unpacked.outputs.HAS_WIN_UNPACKED == 'true'
         shell: powershell
         run: |
           Compress-Archive -Path "portable\*" -DestinationPath "LX-Music-Portable-win-x64.zip" -Force
           echo "Created zip file successfully!"
 
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') && steps.find-unpacked.outputs.HAS_WIN_UNPACKED == 'true'
         uses: softprops/action-gh-release@v1
         with:
           files: |
