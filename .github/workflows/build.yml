@@ -39,7 +39,7 @@ jobs:
         run: npm run build
 
       - name: Pack to directory
-        run: npm run pack:dir
+        run: npm run pack:win:portable:x64
 
       - name: Check directory
         shell: powershell
