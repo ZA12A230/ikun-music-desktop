@@ -32,7 +32,7 @@ import { onMounted, computed, ref } from '@common/utils/vue-tools'
 import useApp from '@renderer/core/useApp'
 import { musicInfo } from '@renderer/store/player/state'
 import { appSetting } from '@renderer/store/setting'
-import AIAssistant from '@/components/common/AIAssistant.vue'
+import AIAssistant from '@renderer/components/common/AIAssistant.vue'
 
 useApp()
 
