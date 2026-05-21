@@ -722,6 +722,33 @@ declare global {
        * 是否在离开搜索界面时自动清空搜索结果列表
        */
       'odc.isAutoClearSearchList': boolean
+
+      /**
+       * 本地账号配置
+       */
+      'localAccount': {
+        id: string
+        name: string
+        avatar: string
+        createTime: string
+        lastLoginTime: string
+      }
+
+      /**
+       * AI助手配置
+       */
+      'aiAssistant': {
+        enabled: boolean
+        model: string
+        apiKey: string
+        responseDelay: number
+        autoOpen: boolean
+      }
+
+      /**
+       * AI助手是否启用
+       */
+      'app.aiAssistantEnabled': boolean
     }
   }
 }
