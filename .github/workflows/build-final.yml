@@ -42,8 +42,8 @@ jobs:
       - name: Build theme
         run: npm run build:theme
 
-      - name: Pack application (dir)
-        run: npm run pack:dir
+      - name: Pack application
+        run: npm run pack
         env:
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
 
