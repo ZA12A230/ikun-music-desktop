@@ -16,73 +16,65 @@ on:
     types: [created]
 
 env:
-  NODE_VERSION: '22.x'
+  NODE_VERSION: '20.x'
+  ELECTRON_VERSION: '37.6.1'
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            architecture: x64
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
       - name: Install dependencies
         run: npm install
+
       - name: Build theme
         run: npm run build:theme
-      - name: Build application
-        run: npm run build
-      - name: Pack to directory
-        run: npm run pack:dir
-      - name: Debug - List all directories
-        shell: powershell
+
+      - name: Pack application
+        run: npm run pack
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+
+      - name: Create portable folder
         run: |
-          Write-Host "=== Debug - Listing all directories ==="
-          Get-ChildItem -Directory -Recurse -Depth 3 | Select-Object FullName | Format-Table -AutoSize
-          Write-Host ""
-          Write-Host "=== Debug - Checking build directory ==="
-          if (Test-Path "build") {
-            Write-Host "build directory found!"
-            Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
-          } else {
-            Write-Host "build directory NOT found!"
-          }
-      - name: Upload entire build directory
+          New-Item -ItemType Directory -Force -Path "build\portable"
+          Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "build\portable\"
+          New-Item -ItemType File -Force -Path "build\portable\portable.txt"
+          "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "build\portable\portable.txt" -Encoding UTF8
+
+      - name: Upload portable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LX-Music-Build-Folder
+          name: LX-Music-Portable-${{ matrix.architecture }}
+          path: build/portable/
+          retention-days: 90
+
+      - name: Upload build folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-folder-${{ matrix.architecture }}
           path: build/
           retention-days: 90
-      - name: Find and upload portable executable
-        shell: powershell
-        run: |
-          Write-Host "=== Finding portable files ==="
-          $portableDirs = Get-ChildItem -Directory -Path "build" -ErrorAction SilentlyContinue | Where-Object {
-            $_.Name -like "*unpack*" -or $_.Name -like "*portable*" -or $_.Name -like "*dir*"
-          }
-          if ($portableDirs) {
-            Write-Host "Found potential portable directories:"
-            foreach ($dir in $portableDirs) {
-              Write-Host " - $($dir.FullName)"
-              $zipPath = "portable-$($dir.Name).zip"
-              Compress-Archive -Path "$($dir.FullName)\*" -DestinationPath $zipPath -Force
-              Write-Host "Created $zipPath"
-            }
-          } else {
-            Write-Host "No unpacked directories found. Looking for exe files..."
-            $exeFiles = Get-ChildItem -File -Path "build" -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue
-            if ($exeFiles) {
-              Write-Host "Found exe files:"
-              foreach ($exe in $exeFiles) {
-                Write-Host " - $($exe.FullName)"
-              }
-            }
-          }
-      - name: Upload any found zip files
+
+      - name: Upload dist folder
         uses: actions/upload-artifact@v4
         with:
-          name: LX-Music-Compressed
-          path: "*.zip"
+          name: dist-folder-${{ matrix.architecture }}
+          path: dist/
           retention-days: 90
