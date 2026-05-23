@@ -170,24 +170,6 @@ const defaultSetting: LX.AppSetting = {
 
   'odc.isAutoClearSearchInput': false,
   'odc.isAutoClearSearchList': false,
-
-  'localAccount': {
-    id: '',
-    name: '用户',
-    avatar: '',
-    createTime: '',
-    lastLoginTime: ''
-  },
-
-  'aiAssistant': {
-    enabled: false,
-    model: 'gpt-3.5',
-    apiKey: '',
-    responseDelay: 1000,
-    autoOpen: false
-  },
-
-  'app.aiAssistantEnabled': false,
 }
 
 // 使用新年皮肤

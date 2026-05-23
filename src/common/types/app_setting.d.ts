@@ -723,32 +723,6 @@ declare global {
        */
       'odc.isAutoClearSearchList': boolean
 
-      /**
-       * 本地账号配置
-       */
-      'localAccount': {
-        id: string
-        name: string
-        avatar: string
-        createTime: string
-        lastLoginTime: string
-      }
-
-      /**
-       * AI助手配置
-       */
-      'aiAssistant': {
-        enabled: boolean
-        model: string
-        apiKey: string
-        responseDelay: number
-        autoOpen: boolean
-      }
-
-      /**
-       * AI助手是否启用
-       */
-      'app.aiAssistantEnabled': boolean
     }
   }
 }

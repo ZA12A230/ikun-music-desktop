@@ -14,40 +14,20 @@
     <layout-sync-mode-modal />
     <layout-sync-auth-code-modal />
     <layout-play-detail />
-    <AIAssistant :visible="showAIAssistant" @close="closeAIAssistant" />
-    <button v-if="aiAssistantEnabled" class="ai-float-btn" @click="toggleAIAssistant">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"></path>
-        <circle cx="12" cy="14" r="4"></circle>
-        <path d="M20 14v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4"></path>
-      </svg>
-    </button>
   </div>
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from '@common/utils/vue-tools'
+import { onMounted, computed } from '@common/utils/vue-tools'
 // import BubbleCursor from '@common/utils/effects/cursor-effects/bubbleCursor'
 // import '@common/utils/effects/snow.min'
 import useApp from '@renderer/core/useApp'
 import { musicInfo } from '@renderer/store/player/state'
 import { appSetting } from '@renderer/store/setting'
-import AIAssistant from '@renderer/components/common/AIAssistant.vue'
 
 useApp()
 
 const dynamicBackground = computed(() => appSetting['theme.dynamicBackground'])
-
-const showAIAssistant = ref(false)
-const aiAssistantEnabled = computed(() => appSetting['app.aiAssistantEnabled'] ?? false)
-
-const toggleAIAssistant = () => {
-  showAIAssistant.value = !showAIAssistant.value
-}
-
-const closeAIAssistant = () => {
-  showAIAssistant.value = false
-}
 
 const dynamicBgStyle = computed(() => {
   if (musicInfo.pic && appSetting['theme.dynamicBackground']) {
@@ -215,31 +195,5 @@ body {
 }
 #view.show-modal > .view-container {
   opacity: 0.2;
-}
-.ai-float-btn {
-  position: fixed;
-  bottom: 100px;
-  right: 30px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
-  z-index: 999;
-}
-.ai-float-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
-}
-.ai-float-btn svg {
-  width: 24px;
-  height: 24px;
 }
 </style>
