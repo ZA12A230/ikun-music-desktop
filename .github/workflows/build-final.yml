@@ -1,19 +1,11 @@
 name: Build Portable Version (Final)
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: '版本号 (例如: v3.3.0)'
-        required: true
-        default: 'v3.3.0'
   push:
     branches:
       - main
     tags:
       - 'v*'
-  release:
-    types: [created]
 
 env:
   NODE_VERSION: '20.x'
@@ -42,49 +34,19 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        env:
-          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
 
       - name: Build theme
         run: npm run build:theme
 
-      - name: Build to directory (simple mode)
-        run: npm run pack:dir
+      - name: Pack application
+        run: npm run pack
         env:
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
-
-      - name: Debug environment
-        run: |
-          Write-Host "=== Node version ==="
-          node --version
-          Write-Host ""
-          Write-Host "=== NPM version ==="
-          npm --version
-          Write-Host ""
-          Write-Host "=== Checking dist directory ==="
-          if (Test-Path "dist") {
-            Write-Host "dist directory exists"
-            Get-ChildItem -Path "dist" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
-          } else {
-            Write-Host "dist directory NOT found!"
-          }
-          Write-Host ""
-          Write-Host "=== Checking build directory ==="
-          if (Test-Path "build") {
-            Write-Host "build directory exists"
-            Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
-          } else {
-            Write-Host "build directory NOT found!"
-          }
 
       - name: Create portable folder
         run: |
           New-Item -ItemType Directory -Force -Path "build\portable"
-          if (Test-Path "dist\win-unpacked") {
-            Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "build\portable\"
-          } elseif (Test-Path "build\win-unpacked") {
-            Copy-Item -Recurse -Path "build\win-unpacked\*" -Destination "build\portable\"
-          }
+          Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "build\portable\"
           New-Item -ItemType File -Force -Path "build\portable\portable.txt"
           "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "build\portable\portable.txt" -Encoding UTF8
 
@@ -93,18 +55,18 @@ jobs:
         with:
           name: LX-Music-Portable-${{ matrix.architecture }}
           path: build/portable/
-          retention-days: 90
+          retention-days: 30
 
       - name: Upload build folder
         uses: actions/upload-artifact@v4
         with:
           name: build-folder-${{ matrix.architecture }}
           path: build/
-          retention-days: 90
+          retention-days: 30
 
       - name: Upload dist folder
         uses: actions/upload-artifact@v4
         with:
           name: dist-folder-${{ matrix.architecture }}
           path: dist/
-          retention-days: 90
+          retention-days: 30
