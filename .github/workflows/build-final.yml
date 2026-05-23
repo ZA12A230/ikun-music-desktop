@@ -42,9 +42,27 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
 
       - name: Build theme
         run: npm run build:theme
+
+      - name: Debug environment
+        run: |
+          Write-Host "=== Node version ==="
+          node --version
+          Write-Host ""
+          Write-Host "=== NPM version ==="
+          npm --version
+          Write-Host ""
+          Write-Host "=== Checking dist directory ==="
+          if (Test-Path "dist") {
+            Write-Host "dist directory exists"
+            Get-ChildItem -Path "dist" -Recurse | Select-Object FullName | Format-Table -AutoSize
+          } else {
+            Write-Host "dist directory NOT found!"
+          }
 
       - name: Pack application
         run: npm run pack
