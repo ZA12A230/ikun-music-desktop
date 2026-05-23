@@ -48,6 +48,11 @@ jobs:
       - name: Build theme
         run: npm run build:theme
 
+      - name: Build to directory (simple mode)
+        run: npm run pack:dir
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+
       - name: Debug environment
         run: |
           Write-Host "=== Node version ==="
@@ -59,20 +64,27 @@ jobs:
           Write-Host "=== Checking dist directory ==="
           if (Test-Path "dist") {
             Write-Host "dist directory exists"
-            Get-ChildItem -Path "dist" -Recurse | Select-Object FullName | Format-Table -AutoSize
+            Get-ChildItem -Path "dist" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
           } else {
             Write-Host "dist directory NOT found!"
           }
-
-      - name: Pack application
-        run: npm run pack
-        env:
-          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+          Write-Host ""
+          Write-Host "=== Checking build directory ==="
+          if (Test-Path "build") {
+            Write-Host "build directory exists"
+            Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
+          } else {
+            Write-Host "build directory NOT found!"
+          }
 
       - name: Create portable folder
         run: |
           New-Item -ItemType Directory -Force -Path "build\portable"
-          Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "build\portable\"
+          if (Test-Path "dist\win-unpacked") {
+            Copy-Item -Recurse -Path "dist\win-unpacked\*" -Destination "build\portable\"
+          } elseif (Test-Path "build\win-unpacked") {
+            Copy-Item -Recurse -Path "build\win-unpacked\*" -Destination "build\portable\"
+          }
           New-Item -ItemType File -Force -Path "build\portable\portable.txt"
           "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "build\portable\portable.txt" -Encoding UTF8
 
