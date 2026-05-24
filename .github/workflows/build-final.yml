@@ -1,0 +1,53 @@
+name: Build Portable Version (Final)
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  IS_CI: 'true'
+
+jobs:
+  Windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v4
+
+      - name: Get npm cache directory
+        shell: pwsh
+        run: echo "NPM_CACHE=$(npm config get cache)" >> $env:GITHUB_ENV
+
+      - name: Setup Node Env
+        env:
+          NPM_CACHE: ${{ env.NPM_CACHE }}
+        uses: ./.github/actions/setup
+
+      - name: Build src code
+        run: |
+          git status --porcelain
+          npm run build
+
+      - name: Pack to directory
+        run: npm run pack:dir
+
+      - name: Debug - List build dir
+        shell: pwsh
+        run: |
+          if (Test-Path "build") {
+            Write-Host "build directory found!"
+            Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName
+          } else {
+            Write-Host "build directory NOT found!"
+          }
+
+      - name: Upload build directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: LX-Music-Build-Folder
+          path: build
+          retention-days: 90
