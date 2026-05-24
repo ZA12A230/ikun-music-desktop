@@ -16,6 +16,7 @@ on:
 env:
   NODE_VERSION: '20.x'
   ELECTRON_VERSION: '37.6.1'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:
