@@ -2,6 +2,11 @@ name: Build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
 env:
   IS_CI: 'true'
 
