@@ -37,23 +37,27 @@ jobs:
       - name: Pack to directory
         run: npm run pack:dir
 
-      - name: Debug - List all directories
+      - name: Create portable folder and copy files
         shell: pwsh
         run: |
-          Write-Host "=== Debug - Listing all directories ==="
-          Get-ChildItem -Directory -Recurse -Depth 3 | Select-Object FullName | Format-Table -AutoSize
-          Write-Host ""
-          Write-Host "=== Debug - Checking build directory ==="
-          if (Test-Path "build") {
-            Write-Host "build directory found!"
-            Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
-          } else {
-            Write-Host "build directory NOT found!"
-          }
+          Write-Host "=== Creating portable folder ==="
+          New-Item -ItemType Directory -Force -Path "build/portable"
+          Copy-Item -Recurse -Path "build/win-unpacked/*" -Destination "build/portable/"
+          New-Item -ItemType File -Force -Path "build/portable/portable.txt"
+          "Portable version created on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "build/portable/portable.txt" -Encoding UTF8
+          Write-Host "=== build directory contents ==="
+          Get-ChildItem -Path "build" -Recurse -Depth 2 | Select-Object FullName | Format-Table -AutoSize
 
       - name: Upload entire build directory
         uses: actions/upload-artifact@v4
         with:
           name: LX-Music-Build-Folder
           path: build/
+          retention-days: 90
+
+      - name: Upload compressed portable version
+        uses: actions/upload-artifact@v4
+        with:
+          name: LX-Music-Portable
+          path: build/portable/
           retention-days: 90
